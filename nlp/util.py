@@ -1,8 +1,11 @@
 import numpy
 import math
 from nlp.models import Tfidf, TopicModelSVD
+from sklearn.feature_extraction.text import CountVectorizer
+import pickle
 
-@staticmethod
+
+
 def cosine_distance(u, v):
     """
     Returns the cosine of the angle between vectors v and u. This is equal to
@@ -13,9 +16,8 @@ def cosine_distance(u, v):
 
 
 
-@staticmethod
-def get_SVD_model(people):
-    docs = [p['stemmed_wiki_doc'] for p in people]
+def get_SVD_model(people: [dict]):
+    docs = [p['clean_doc'] for p in people]
     doc_ids = [p['_id'] for p in people]
 
     model = Tfidf(docs, doc_ids)
