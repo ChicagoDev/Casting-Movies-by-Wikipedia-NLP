@@ -2,6 +2,11 @@ from dataclasses import dataclass
 from pandas import DataFrame, Index
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
+from collections import namedtuple
+from bson.objectid import ObjectId
+from collections import defaultdict
+
+CastMatch = namedtuple('CastMatch', 'role playedby cosine_dist')
 
 @dataclass
 class Tfidf():
@@ -75,50 +80,46 @@ class TopicModelSVD():
             print(", ".join([self.cv_tfidf.get_feature_names()[i]
                              for i in topic.argsort()[:-no_top_words - 1:-1]]))
 
-"""
-    Data Conversion. Converts a Cluster to a Dict[list]. Keys-> Clusternames, Values -> Cluster Members
-"""
 
-from collections import defaultdict
+
+
 
 def get_cluster_as_dict(means):
+    """
+        Data Conversion. Converts a Cluster to a Dict[list].
+        Keys-> Clusternames, Values -> Cluster Members
+    """
     clust_raw = means.predict(doc_topix_matx)
     clusters = defaultdict(list)
     for clust in zip(clust_raw, doc_topix_matx.index):
         clusters[clust[0]].append(clust[1])
     return clusters
 
-"""
-    Cast retrieval from DB. Returns a List[dict] of cast, given an event from the database. 
-"""
 
-from bson.objectid import ObjectId
+
 
 def get_roles(event_id, db):
+    """
+        Cast retrieval from DB. Returns a List[dict] of cast, given an event from the database.
+    """
 
     cast: [dict] = []
 
     if type(event_id) is str:
         event_id = ObjectId(event_id)
 
-    roles = db.events.find_one({ '_id': event_id })['roles']
+    roles = db.events.find_one({'_id': event_id})['roles']
 
-    for person in db.event_roles.find({ '_id': { '$in': roles } }):
+    for person in db.event_roles.find({'_id': { '$in': roles}}):
         cast.append(person)
     return cast
 
 
-"""
-    Searches a cluster for the most similar actor. 
-
-"""
-
-from collections import namedtuple
-
-CastMatch = namedtuple('CastMatch', 'role playedby cosine_dist')
-
-
 def best_match(got_roles_list, clust_dict, vectorizer, topic_model, cluster_model):
+    """
+        Searches a cluster for the most similar actor.
+
+    """
     matches = []
 
     for person in got_roles_list:
@@ -145,15 +146,14 @@ def best_match(got_roles_list, clust_dict, vectorizer, topic_model, cluster_mode
     return matches
 
 
-"""
-    Creates a human-readable named-tuple from a match object with a Mongo _id
-"""
-from collections import namedtuple
-from bson.objectid import ObjectId
 
-CastMatch = namedtuple('CastMatch', 'role playedby cosine_dist')
+
 
 def get_real_actor(cast_match):
+    """
+        Creates a human-readable named-tuple from a match object with a Mongo _id
+    """
+
     role = cast_match.role
     person = cast.find_one({'_id': cast_match.playedby})
     dist = cast_match.cosine_dist
