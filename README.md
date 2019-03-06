@@ -2,10 +2,7 @@
 
 ## Overview
 
-WikipediaCastingCall uses Clustering and Topic Modeling to match similar people based on their Wikipedia biographies.
- 
- In this particular case, I compared matched historical figures and actors. [See Here.] (http://www.chicagoan
- .io/casting-movies-by-topic-modeling-and-clustering-wikipedia-pages/) 
+WikipediaCastingCall uses Clustering and Topic Modeling to match similar people based on their Wikipedia biographies. In this particular case, I compared matched historical figures and actors. [See Here.](http://www.chicagoan.io/casting-movies-by-topic-modeling-and-clustering-wikipedia-pages/)
  
 
 ## Data
